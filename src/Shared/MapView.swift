@@ -462,19 +462,19 @@ final class MapView: UIView, UIActionSheetDelegate,
 		zoomLevelLabel.isHidden = false
 		addSubview(zoomLevelLabel)
 
-		// Create planning mode toggle button
+		// Create planning mode toggle button (large, isolated at top of left column)
 		planningModeButton = UIButton(type: .system)
 		planningModeButton.translatesAutoresizingMaskIntoConstraints = true
-		let config = UIImage.SymbolConfiguration(pointSize: 22, weight: .medium)
+		let config = UIImage.SymbolConfiguration(pointSize: 36, weight: .medium)
 		let exploreImage = UIImage(systemName: "binoculars.fill", withConfiguration: config)
 		planningModeButton.setImage(exploreImage, for: .normal)
 		planningModeButton.backgroundColor = UIColor(white: 1.0, alpha: 0.9)
 		planningModeButton.tintColor = UIColor.systemBlue
-		planningModeButton.layer.cornerRadius = 22
+		planningModeButton.layer.cornerRadius = 40
 		planningModeButton.layer.shadowColor = UIColor.black.cgColor
 		planningModeButton.layer.shadowOffset = CGSize(width: 0, height: 2)
 		planningModeButton.layer.shadowOpacity = 0.3
-		planningModeButton.layer.shadowRadius = 3
+		planningModeButton.layer.shadowRadius = 4
 		planningModeButton.addTarget(self, action: #selector(togglePlanningMode), for: .touchUpInside)
 		addSubview(planningModeButton)
 
@@ -849,10 +849,22 @@ final class MapView: UIView, UIActionSheetDelegate,
 	override func layoutSubviews() {
 		super.layoutSubviews()
 
-		// Move and restyle camera button to left side, above planning mode
-		if let cameraButton = mainView.viewerCameraButton,
+		// Position planning (binoculars) button at top of the left column,
+		// 80x80 and isolated so it can be mashed without hitting other toggles.
+		if planningModeButton != nil,
 		   mainView.helpButton != nil,
 		   let helpSuperview = mainView.helpButton.superview
+		{
+			let helpFrameInMapView = helpSuperview.convert(mainView.helpButton.frame, to: self)
+			let xPos = helpFrameInMapView.origin.x
+			let yPos = helpFrameInMapView.origin.y + helpFrameInMapView.size.height + 30
+			planningModeButton.frame = CGRect(x: xPos, y: yPos, width: 80, height: 80)
+			bringSubviewToFront(planningModeButton)
+		}
+
+		// Move and restyle camera button to left side, below planning mode (with extra gap)
+		if let cameraButton = mainView.viewerCameraButton,
+		   planningModeButton != nil
 		{
 			if cameraButton.superview != self {
 				cameraButton.removeFromSuperview()
@@ -869,27 +881,18 @@ final class MapView: UIView, UIActionSheetDelegate,
 				cameraButton.layer.shadowRadius = 3
 				addSubview(cameraButton)
 			}
-			let helpFrameInMapView = helpSuperview.convert(mainView.helpButton.frame, to: self)
-			let xPos = helpFrameInMapView.origin.x
-			let yPos = helpFrameInMapView.origin.y + helpFrameInMapView.size.height + 30
+			let planningFrame = planningModeButton.frame
+			let xPos = planningFrame.origin.x + (planningFrame.size.width - 44) / 2
+			let yPos = planningFrame.origin.y + planningFrame.size.height + 24
 			cameraButton.frame = CGRect(x: xPos, y: yPos, width: 44, height: 44)
 			bringSubviewToFront(cameraButton)
 		}
 
-		// Position planning button below camera button
-		if planningModeButton != nil, mainView.viewerCameraButton != nil {
+		// Position unnamed roads button below camera button
+		if unnamedRoadsButton != nil, mainView.viewerCameraButton != nil {
 			let cameraFrame = mainView.viewerCameraButton.frame
 			let xPos = cameraFrame.origin.x
-			let yPos = cameraFrame.origin.y + cameraFrame.size.height + 8
-			planningModeButton.frame = CGRect(x: xPos, y: yPos, width: 44, height: 44)
-			bringSubviewToFront(planningModeButton)
-		}
-
-		// Position unnamed roads button below planning mode button
-		if unnamedRoadsButton != nil, planningModeButton != nil {
-			let planningFrame = planningModeButton.frame
-			let xPos = planningFrame.origin.x
-			let yPos = planningFrame.origin.y + planningFrame.size.height + 8 // 8pt gap
+			let yPos = cameraFrame.origin.y + cameraFrame.size.height + 8 // 8pt gap
 			unnamedRoadsButton.frame = CGRect(x: xPos, y: yPos, width: 44, height: 44)
 			bringSubviewToFront(unnamedRoadsButton)
 		}
