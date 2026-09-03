@@ -20,7 +20,6 @@ class ViewerAuth: NSObject, ASWebAuthenticationPresentationContextProviding {
 
 	private let domain = "dev-p6r3cciondp4has2.us.auth0.com"
 	private let clientId = "aIEX8Be7Vjf4zsdSI3MbRUcFeiyVa78D"
-	private let clientSecret = "G-GbV8X7J3gSb1Chm1pswp_uVH_rcbsGMO3d40YQ9TlRd09PO5ZDnY8kDwAerg72"
 	private let audience = "https://Viewer/api/authorize"
 	private let redirectURI = "gomaposm://viewer/callback"
 
@@ -111,7 +110,6 @@ class ViewerAuth: NSObject, ASWebAuthenticationPresentationContextProviding {
 		let body: [String: String] = [
 			"grant_type": "authorization_code",
 			"client_id": clientId,
-			"client_secret": clientSecret,
 			"code": code,
 			"redirect_uri": redirectURI,
 			"code_verifier": codeVerifier
@@ -137,7 +135,6 @@ class ViewerAuth: NSObject, ASWebAuthenticationPresentationContextProviding {
 		let body: [String: String] = [
 			"grant_type": "refresh_token",
 			"client_id": clientId,
-			"client_secret": clientSecret,
 			"refresh_token": refreshToken
 		]
 		request.httpBody = try JSONSerialization.data(withJSONObject: body)
